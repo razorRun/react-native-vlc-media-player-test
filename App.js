@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  *
  * @format
- * @flow
+ * @flow strict-local
  */
 
 import React from 'react';
@@ -14,6 +14,7 @@ import {
   View,
   Text,
   StatusBar,
+  Dimensions 
 } from 'react-native';
 
 import {
@@ -23,7 +24,11 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import {VLCPlayer, VlCPlayerView} from 'react-native-vlc-media-player';
+import { VLCPlayer } from 'react-native-vlc-media-player';
+
+const calcVLCPlayerHeight = (windowWidth,aspetRatio) => {
+  return windowWidth * aspetRatio;
+};
 
 const App: () => React$Node = () => {
   return (
@@ -33,23 +38,36 @@ const App: () => React$Node = () => {
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
+          {/* <Header title="test"/> */}
+          <View >
+              <Text style={styles.heading}>RN VLC Media Player</Text>
+          </View>
           <View style={styles.body}>
-            <VLCPlayer
-              ref={(ref) => (this.vlcPlayer = ref)}
-              style={{width: '100%', height: 200}}
-              videoAspectRatio="16:9"
-              source={{
-                uri:
-                  'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-                //'rtsp://admin:pass@192.168.1.43:554/Streaming/Channels/102', // camera rtsp tests
-              }}
-            />
+          <VLCPlayer
+            source={{
+              initType: 2,
+              hwDecoderEnabled: 1,
+              hwDecoderForced: 1,
+              uri:
+                'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov',
+              initOptions: [
+                '--no-audio',
+                '--rtsp-tcp',
+                '--network-caching=150',
+                '--rtsp-caching=150',
+                '--no-stats',
+                '--tcp-caching=150',
+                '--realrtsp-caching=150',
+              ],
+            }}
+            autoplay={true}
+            autoAspectRatio={true}
+            resizeMode="cover" 
+            // videoAspectRatio={"4:3"}
+            isLive={true}
+            autoReloadLive={true}
+            style={{ height: calcVLCPlayerHeight( Dimensions.get('window').width, 3/4), marginTop: 30}}
+          />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -61,13 +79,17 @@ const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: Colors.lighter,
   },
+  heading:{
+    fontSize: 30,
+    fontWeight: '700',
+    color: Colors.black,
+  },
   engine: {
     position: 'absolute',
     right: 0,
   },
   body: {
     backgroundColor: Colors.white,
-    width: '100%',
   },
   sectionContainer: {
     marginTop: 32,
